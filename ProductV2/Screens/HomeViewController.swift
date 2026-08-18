@@ -4,17 +4,22 @@
 //
 //  Created by Design on 17/8/26.
 //
+// add header
+// section
 
 
 import UIKit
 
 class HomeViewController: UIViewController {
+
     
     private let homeView = HomeView()
     private let viewModel = HomeViewModel()
     
     override func loadView() {
         view = homeView
+        
+        
     }
     
     override func viewDidLoad() {
@@ -22,6 +27,8 @@ class HomeViewController: UIViewController {
         
         bindViewModel()
         viewModel.fetchHomeData()
+    
+
     }
     
     private func bindViewModel() {

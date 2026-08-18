@@ -16,7 +16,7 @@ class DealCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .systemGray6
+        imageView.backgroundColor = .brown
         imageView.layer.cornerRadius = 10
         return imageView
     }()

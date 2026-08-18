@@ -12,6 +12,8 @@ import UIKit
 class HomeView: UIView, UICollectionViewDataSource {
     
     private var sliderItems: [SliderItem] = []
+    private var dealItems: [DealItem] = []
+    private let header = SectionHeader()
     
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
@@ -25,9 +27,6 @@ class HomeView: UIView, UICollectionViewDataSource {
     private var autoScrollTimer: Timer?
     private var currentIndex: Int = 0
     private let autoScrollInterval: TimeInterval = 2.0
-    // show best deal
-    
-    private var dealItems: [DealItem] = []
     
     let sliderCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -42,8 +41,7 @@ class HomeView: UIView, UICollectionViewDataSource {
         cv.register(SliderCell.self, forCellWithReuseIdentifier: SliderCell.reuseID)
         return cv
     }()
-    // deal block
-
+    
     let dealsCollectionView: UICollectionView = {
 
         let layout = UICollectionViewFlowLayout()
@@ -54,21 +52,16 @@ class HomeView: UIView, UICollectionViewDataSource {
         // 2 columns
         let spacing: CGFloat = 12
         let horizontalPadding: CGFloat = 16
-
         let screenWidth = UIScreen.main.bounds.width
-
         let itemWidth = (screenWidth
             - (horizontalPadding * 2)
             - spacing) / 2
-
         layout.itemSize = CGSize(
             width: itemWidth,
-            height: 205
+            height: 230
         )
-
         layout.minimumLineSpacing = 12
         layout.minimumInteritemSpacing = 12
-
         layout.sectionInset = UIEdgeInsets(
             top: 12,
             left: horizontalPadding,
@@ -82,13 +75,8 @@ class HomeView: UIView, UICollectionViewDataSource {
         )
 
         cv.backgroundColor = .clear
-
-        // Important: the main UIScrollView should scroll,
-        // not this collection view.
         cv.isScrollEnabled = false
-
         cv.showsVerticalScrollIndicator = false
-
         cv.register(
             DealCell.self,
             forCellWithReuseIdentifier: DealCell.reuseID
@@ -140,10 +128,13 @@ class HomeView: UIView, UICollectionViewDataSource {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(sliderCollectionView)
+        contentView.addSubview(header)                                  
         contentView.addSubview(dealsCollectionView)
         sliderCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        header.translatesAutoresizingMaskIntoConstraints = false
         dealsCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        header.configure(title: "Today's best deals", actionTitle: "See All")
         
         // scrollView
         NSLayoutConstraint.activate([
@@ -164,22 +155,26 @@ class HomeView: UIView, UICollectionViewDataSource {
         
         // Slider
         NSLayoutConstraint.activate([
-            
-            // Slider
             sliderCollectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            
             sliderCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            
             sliderCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             sliderCollectionView.heightAnchor.constraint(equalToConstant: 220)
         ])
+        
+        // Header
         NSLayoutConstraint.activate([
-            
-            // Deals
-            dealsCollectionView.topAnchor.constraint(equalTo: sliderCollectionView.bottomAnchor,constant: 20),
+            header.topAnchor.constraint(equalTo: sliderCollectionView.bottomAnchor, constant: 16),
+            header.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            header.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            header.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        // Deals
+        NSLayoutConstraint.activate([
+            dealsCollectionView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 12),   // FIXED
             dealsCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             dealsCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            dealsCollectionView.heightAnchor.constraint(equalToConstant: 3 * 205 + 2 * 12 + 24),
+            dealsCollectionView.heightAnchor.constraint(equalToConstant: 3 * 230 + 2 * 12 + 24),
             dealsCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -20)
         ])
     }
