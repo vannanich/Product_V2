@@ -14,7 +14,10 @@ class HomeView: UIView, UICollectionViewDataSource {
     private var sliderItems: [SliderItem] = []
     private var dealItems: [DealItem] = []
     private let header = SectionHeader()
-    
+    private let restockHeader = SectionHeader()
+    private var dealsHeightConstraint: NSLayoutConstraint!
+    // nav bar
+    private let navigationBar = NavigationBar()
     private let scrollView: UIScrollView = {
         let sv = UIScrollView()
         sv.showsVerticalScrollIndicator = false
@@ -22,7 +25,6 @@ class HomeView: UIView, UICollectionViewDataSource {
         return sv
     }()
     private let contentView = UIView()
-    
     // slider auto swap
     private var autoScrollTimer: Timer?
     private var currentIndex: Int = 0
@@ -62,18 +64,11 @@ class HomeView: UIView, UICollectionViewDataSource {
         )
         layout.minimumLineSpacing = 12
         layout.minimumInteritemSpacing = 12
-        layout.sectionInset = UIEdgeInsets(
-            top: 12,
-            left: horizontalPadding,
-            bottom: 12,
-            right: horizontalPadding
-        )
-
+        layout.sectionInset = UIEdgeInsets(top: 12,left: horizontalPadding,bottom: 12,right: horizontalPadding)
         let cv = UICollectionView(
             frame: .zero,
             collectionViewLayout: layout
         )
-
         cv.backgroundColor = .clear
         cv.isScrollEnabled = false
         cv.showsVerticalScrollIndicator = false
@@ -111,9 +106,21 @@ class HomeView: UIView, UICollectionViewDataSource {
     }
     func setDealItems(_ items: [DealItem]) {
         DispatchQueue.main.async {
-            
             self.dealItems = items
             self.dealsCollectionView.reloadData()
+            
+            let columns = 2
+            let rows = Int(ceil(Double(items.count) / Double(columns)))
+            let cellHeight: CGFloat = 230
+            let lineSpacing: CGFloat = 12
+            let sectionInsets: CGFloat = 24
+            
+            let newHeight = CGFloat(rows) * cellHeight
+                + CGFloat(max(rows - 1, 0)) * lineSpacing
+                + sectionInsets
+            
+            self.dealsHeightConstraint.constant = newHeight
+            self.layoutIfNeeded()
             
             print("UI received deals: \(self.dealItems.count)")
         }
@@ -121,24 +128,37 @@ class HomeView: UIView, UICollectionViewDataSource {
     private func setupLayout() {
         backgroundColor = .white
         
+        addSubview(navigationBar)
+        navigationBar.translatesAutoresizingMaskIntoConstraints = false
+
         addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         
         scrollView.addSubview(contentView)
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        
         contentView.addSubview(sliderCollectionView)
         contentView.addSubview(header)                                  
         contentView.addSubview(dealsCollectionView)
+        contentView.addSubview(restockHeader)
+        
+        restockHeader.translatesAutoresizingMaskIntoConstraints = false
         sliderCollectionView.translatesAutoresizingMaskIntoConstraints = false
         header.translatesAutoresizingMaskIntoConstraints = false
         dealsCollectionView.translatesAutoresizingMaskIntoConstraints = false
 
         header.configure(title: "Today's best deals", actionTitle: "See All")
+        restockHeader.configure(title: "You might also like", actionTitle: "See All")
         
+        // nav bar
+        NSLayoutConstraint.activate([
+            navigationBar.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            navigationBar.leadingAnchor.constraint(equalTo: leadingAnchor),
+            navigationBar.trailingAnchor.constraint(equalTo: trailingAnchor),
+            navigationBar.heightAnchor.constraint(equalToConstant: 56)
+        ])
         // scrollView
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
@@ -168,7 +188,8 @@ class HomeView: UIView, UICollectionViewDataSource {
             header.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             header.heightAnchor.constraint(equalToConstant: 30)
         ])
-        
+        dealsHeightConstraint = dealsCollectionView.heightAnchor.constraint(equalToConstant: 0)
+
         // Deals
         NSLayoutConstraint.activate([
             dealsCollectionView.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 12),   // FIXED
@@ -177,6 +198,23 @@ class HomeView: UIView, UICollectionViewDataSource {
             dealsCollectionView.heightAnchor.constraint(equalToConstant: 3 * 230 + 2 * 12 + 24),
             dealsCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,constant: -20)
         ])
+        
+        NSLayoutConstraint.activate([
+            restockHeader.topAnchor.constraint(equalTo: dealsCollectionView.bottomAnchor, constant: 16),
+            restockHeader.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            restockHeader.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            restockHeader.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        navigationBar.onChatTap = {
+            print("Chat tapped")
+        }
+        navigationBar.onNotificationTap = {
+            print("Notification tapped")
+        }
+        navigationBar.onProfileTap = {
+            print("Profile tapped")
+        }
     }
     
     func collectionView(
@@ -198,9 +236,7 @@ class HomeView: UIView, UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        
-        // MARK: - Slider
-        
+                
         if collectionView == sliderCollectionView {
             
             let cell = collectionView.dequeueReusableCell(
@@ -214,9 +250,7 @@ class HomeView: UIView, UICollectionViewDataSource {
             
             return cell
         }
-        
-        // MARK: - Deals
-        
+                
         if collectionView == dealsCollectionView {
             
             let cell = collectionView.dequeueReusableCell(

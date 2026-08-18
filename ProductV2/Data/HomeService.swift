@@ -17,7 +17,6 @@ final class HomeService {
             completion([])
             return
         }
-
         URLSession.shared.dataTask(with: url) { data, response, error in
             // THIS block finally executes now, whenever the response arrives
             guard let data = data else {

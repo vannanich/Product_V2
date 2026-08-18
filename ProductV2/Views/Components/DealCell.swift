@@ -93,8 +93,7 @@ class DealCell: UICollectionViewCell {
                 equalTo: imageView.topAnchor,
                 constant: 8
             ),
-            badgeLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor,constant: 8
-            ),
+            badgeLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor,constant: 8),
             badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 40),
             badgeLabel.heightAnchor.constraint(equalToConstant: 26),
             // Title

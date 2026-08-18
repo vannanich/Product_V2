@@ -13,22 +13,32 @@ import UIKit
 class HomeViewController: UIViewController {
 
     
+    private let tabBarView = TabBarView()
     private let homeView = HomeView()
     private let viewModel = HomeViewModel()
     
     override func loadView() {
         view = homeView
-        
-        
     }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         bindViewModel()
-        viewModel.fetchHomeData()
-    
-
+        viewModel.sliderData()
+//        setupTabBar()
+    }
+    private func setupTabBar() {
+        view.addSubview(tabBarView)
+        tabBarView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            tabBarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tabBarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tabBarView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8)
+        ])
+        
+        tabBarView.onSelect = { item in
+            print("Tapped: \(item.title)")
+        }
     }
     
     private func bindViewModel() {
@@ -48,7 +58,6 @@ class HomeViewController: UIViewController {
                 self.viewModel.dealItems
             )
         }
-        
         viewModel.onError = { errorMessage in
             print("Error:", errorMessage)
         }

@@ -15,14 +15,11 @@ class HomeViewModel {
     // best deal
     private(set) var dealItems: [DealItem] = []
     private(set) var dealsTitle: String = "Today's best deals"
-    
-    // Callbacks
     var onSliderUpdated: (() -> Void)?
     // best deal
     var onDealsUpdated: (() -> Void)?
     var onError: ((String) -> Void)?
-    
-    func fetchHomeData() {
+    func sliderData() {
         homeService.fetchSections { [weak self] sections in
             guard let self = self else { return }
             if let sliderSection = sections.first(where: { $0.sectionType == "shared.slider" }),
@@ -46,17 +43,15 @@ class HomeViewModel {
             }
         }
     }
-    
     var numberOfSliderItems: Int {
         return sliderItems.count
     }
-    
     func sliderItem(at index: Int) -> SliderItem? {
         guard index >= 0 && index < sliderItems.count else { return nil }
         return sliderItems[index]
     }
     func dealItem(at index: Int) -> DealItem? {
-            guard index >= 0 && index < dealItems.count else { return nil }
-            return dealItems[index]
-        }
+        guard index >= 0 && index < dealItems.count else { return nil }
+        return dealItems[index]
+    }
 }
